@@ -22,29 +22,38 @@ public partial class Program
         ConfigureServices(services);
         var app = builder.Build();
         ConfigureMiddlewarePipeline(app);
-        
-        // Only run migrations if not in testing environment
-        if (!app.Environment.IsEnvironment("Testing"))
+
+        //// Only run migrations if not in testing environment
+        //if (!app.Environment.IsEnvironment("Testing"))
+        //{
+        //using (var scope = app.Services.CreateScope())
+        //{
+        //    var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+        //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>(); 
+
+        //    dataContext.Database.Migrate();
+        //    //dataContext.Database.EnsureCreated();
+
+        //    var user = new UserApp
+        //    {
+        //        Name = "Antoine Simper",
+        //        UserName = "antoine.simper@gmail.com",
+        //        Email = "antoine.simper@gmail.com"
+        //    };
+
+        //   var res =  await userManager.CreateAsync(user, "mahdiiii");
+        //}
+        //}
+        // Apply database migrations
+        using (var scope = app.Services.CreateScope())
         {
-            using (var scope = app.Services.CreateScope())
-            {
-                var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>(); 
+            var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+            context.Database.Migrate();
 
-                dataContext.Database.Migrate();
-                //dataContext.Database.EnsureCreated();
-
-                var user = new UserApp
-                {
-                    Name = "Antoine Simper",
-                    UserName = "antoine.simper@gmail.com",
-                    Email = "antoine.simper@gmail.com"
-                };
-
-                await userManager.CreateAsync(user, "mahdiiii");
-            }
+            // Seed default users
+            SeedUsers(scope.ServiceProvider);
         }
-        
+
         app.Run();
     }
 
@@ -133,9 +142,9 @@ public partial class Program
     static void ConfigureIdentity(IServiceCollection services)
     {
         services
-            .AddIdentity<UserApp, AssociationAdonfAPI.Context.Role>()
+            .AddIdentity<UserApp, Role>()
             .AddEntityFrameworkStores<DataContext>()
-            .AddRoleManager<RoleManager<AssociationAdonfAPI.Context.Role>>()
+            .AddRoleManager<RoleManager<Role>>()
             .AddUserManager<UserManager<UserApp>>()
             .AddSignInManager<SignInManager<UserApp>>()
             .AddDefaultTokenProviders();
@@ -288,6 +297,41 @@ public partial class Program
 
             // Map controllers
             app.MapControllers();
-        }
+    }
     #endregion
+
+    static void SeedUsers(IServiceProvider serviceProvider)
+    {
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+
+            // Seed a default super admin user
+            var superAdminEmail = new UserApp
+            {
+                UserName = "antoine.simper+admin@gmail.com",
+                Email = "antoine.simper+admin@gmail.com",
+                EmailConfirmed = true,
+                Name= "Administrator",
+            };
+            var superAdminPassword = "Password123!";
+            if (userManager.FindByEmailAsync(superAdminEmail.Email).Result == null)
+            {
+                var createPowerUser = userManager
+                    .CreateAsync(superAdminEmail, superAdminPassword)
+                    .Result;
+                if (createPowerUser.Succeeded)
+                {
+                    if (!roleManager.RoleExistsAsync("Admin").Result)
+                    {
+                        var role = new Role { Name = "Admin" };
+                        roleManager.CreateAsync(role).Wait();
+                    }
+                    userManager.AddToRoleAsync(superAdminEmail, "Admin").Wait();
+                }
+            }
+        }
+    }
 }

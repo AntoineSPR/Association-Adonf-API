@@ -7,9 +7,6 @@ using AssociationAdonfAPI.Utilities;
 
 namespace AssociationAdonfAPI.Context
 {
-    // Déclaration de la classe Role qui hérite de IdentityRole<Guid> :
-    public class Role : IdentityRole<Guid> { }
-
     public class DataContext : IdentityDbContext<UserApp, Role, Guid>
     {
         /// <summary>
