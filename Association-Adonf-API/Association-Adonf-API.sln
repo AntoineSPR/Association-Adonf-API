@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Association-Adonf-API", "Association-Adonf-API.csproj", "{92536FA4-358A-4D53-8A89-9A90804EB81A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92536FA4-358A-4D53-8A89-9A90804EB81A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92536FA4-358A-4D53-8A89-9A90804EB81A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92536FA4-358A-4D53-8A89-9A90804EB81A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92536FA4-358A-4D53-8A89-9A90804EB81A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2E408C1-3D61-445F-B283-B3B21782C234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E408C1-3D61-445F-B283-B3B21782C234}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E408C1-3D61-445F-B283-B3B21782C234}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E408C1-3D61-445F-B283-B3B21782C234}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75604CF0-2411-48C1-865E-18DDE8AE6859}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75604CF0-2411-48C1-865E-18DDE8AE6859}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75604CF0-2411-48C1-865E-18DDE8AE6859}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75604CF0-2411-48C1-865E-18DDE8AE6859}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {06AB5BEB-2296-427E-9D83-83D4A7B53157}
+	EndGlobalSection
+EndGlobal

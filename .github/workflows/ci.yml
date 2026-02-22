@@ -1,0 +1,40 @@
+name: CI pipeline for the API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-unitaire:
+    name: Tests Unitaires
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+      - name: Restore dependencies
+        run: dotnet restore ./Procrastinator/
+      - name: Build
+        run: dotnet build ./Procrastinator/ --no-restore
+      - name: Lancer les tests unitaires
+        run: dotnet test --no-build --verbosity normal ./TestsUnitaires
+
+  test-integration:
+    name: Tests d'Intégration
+    runs-on: ubuntu-latest
+    needs: test-unitaire
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+      - name: Restore dependencies
+        run: dotnet restore ./Procrastinator/
+      - name: Build
+        run: dotnet build ./Procrastinator/ --no-restore
+      - name: Lancer les tests d'intégration
+        run: dotnet test --no-build --verbosity detailed  ./TestsIntegration
