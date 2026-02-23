@@ -42,7 +42,11 @@ public class FileController : ControllerBase
             return BadRequest();
         }
 
-            using var inputStream = file.OpenReadStream();
+        //If file already exists, delete it
+        if (System.IO.File.Exists(Path.Combine(env.WebRootPath, "Images", file.FileName)))
+            DeleteAvatar(file.FileName);
+
+        using var inputStream = file.OpenReadStream();
             using var image = await Image.LoadAsync(inputStream);
 
             image.Mutate(x => x.Resize(new ResizeOptions
@@ -56,7 +60,7 @@ public class FileController : ControllerBase
             await image.SaveAsWebpAsync(outputStream);
             outputStream.Seek(0, SeekOrigin.Begin);
 
-            string fileName = Guid.NewGuid() + "_avatar.webp";// + Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid() + ".webp";// + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(env.WebRootPath, "Images", fileName); // wwwroot + images + filename ???
 
             using (var stream = System.IO.File.Create(filePath))
@@ -69,5 +73,20 @@ public class FileController : ControllerBase
 
             return Ok(url);
         }
-    
+
+    [HttpDelete]
+    public ActionResult DeleteAvatar(string fileName)
+    {
+        var filePath = Path.Combine(env.WebRootPath, "Images", fileName);
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+            return Ok();
+        }
+        else
+        {
+            return NotFound();
+        }
+    }
+
 }
