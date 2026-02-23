@@ -115,8 +115,8 @@ public partial class Program
                 {
                         "http://localhost",
                         "https://localhost",
-                        "https://localhost:4200",
-                        "http://localhost:4200",
+                        "https://localhost:4321",
+                        "http://localhost:4321",
                         "http://localhost:7113",
                         "https://localhost:7113",
                         "https://localhost:7168",
