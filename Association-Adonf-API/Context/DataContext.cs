@@ -46,7 +46,9 @@ namespace AssociationAdonfAPI.Context
             };
             builder.Entity<Role>().HasData(roles);
 
-           
+            builder.Entity<PageContent>()
+                .Property(p => p.Content)
+                .HasColumnType("jsonb");
             
         }
 
@@ -54,6 +56,8 @@ namespace AssociationAdonfAPI.Context
         public DbSet<UserApp> Users { get; set; }
 
         public DbSet<Role> Roles { get; set; }
+        
+        public DbSet<PageContent> PageContents { get; set; }
 
 
     }

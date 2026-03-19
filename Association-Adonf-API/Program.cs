@@ -64,6 +64,7 @@ public partial class Program
         services.AddScoped<AuthService>();
         services.AddScoped<UserService>();
         services.AddScoped<SendMailService>();
+        services.AddScoped<PageContentService>();
 
         // Logger
         services.AddLogging(loggingBuilder =>
