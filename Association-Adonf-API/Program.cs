@@ -296,7 +296,7 @@ public partial class Program
             app.UseAuthorization();
 
             // Map controllers
-            app.MapControllers();
+            app.MapControllers().RequireAuthorization();
     }
     #endregion
 
