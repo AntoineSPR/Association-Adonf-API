@@ -18,6 +18,7 @@ namespace AssociationAdonfAPI.Controllers
         }
 
         [HttpGet("{slug}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetPageContent(string slug)
         {
             var content = await _pageContentService.GetBySlugAsync(slug);
