@@ -1,10 +1,14 @@
 name: Deploy Develop API
 
 on:
-  workflow_run:
-    workflows: ["CI pipeline for the API"]
-    types:
-      - completed
+  # IF NEEDED, CONFIGURE CI BEFORE CD
+  # workflow_run:
+  #   workflows: ["CI pipeline for the API"]
+  #   types:
+  #     - completed
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
@@ -21,10 +25,10 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t antoinespr/hexaplanning-api:dev1 .
+        run: docker build -t antoinespr/Association-Adonf-API:dev1 .
 
       - name: Push image to Docker Hub
-        run: docker push antoinespr/hexaplanning-api:dev1
+        run: docker push antoinespr/Association-Adonf-API:dev1
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -33,5 +37,5 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
-            docker pull antoinespr/hexaplanning-api:dev1
+            docker pull antoinespr/Association-Adonf-API:dev1
             docker compose -f /home/ubuntu/backend/docker-compose.yml up -d --force-recreate
