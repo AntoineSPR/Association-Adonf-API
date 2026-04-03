@@ -25,7 +25,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t antoinespr/association-adonf-api:dev1 .
+        run: docker build -t antoinespr/association-adonf-api:dev1 ./Association-Adonf-API
 
       - name: Push image to Docker Hub
         run: docker push antoinespr/association-adonf-api:dev1
