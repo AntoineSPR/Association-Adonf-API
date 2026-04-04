@@ -32,7 +32,7 @@ namespace AssociationAdonfAPI.Controllers
         }
 
         [HttpPut("{slug}")]
-        [Authorize(Roles = "Admin")] // Requires Admin privileges
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdatePageContent(string slug, [FromBody] PageContentUpdateDto dto)
         {
             if (!ModelState.IsValid)

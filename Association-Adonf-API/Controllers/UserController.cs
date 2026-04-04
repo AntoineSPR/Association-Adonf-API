@@ -27,7 +27,7 @@ namespace AssociationAdonfAPI.Controllers
             this.mailService = mailService;
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [EnableCors]
         [Route("register")]
         [HttpPost]
