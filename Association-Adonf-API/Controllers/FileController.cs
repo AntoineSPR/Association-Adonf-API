@@ -1,5 +1,6 @@
 ﻿using AssociationAdonfAPI.Models;
 using AssociationAdonfAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
@@ -8,6 +9,7 @@ using System.Security.Claims;
 
 namespace AssociationAdonfAPI.Controllers;
 
+[Authorize(Roles = "Admin")]
 [Route("[controller]")]
 [ApiController]
 public class FileController : ControllerBase
@@ -20,7 +22,7 @@ public class FileController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<string>> UploadAvatar(
+    public async Task<ActionResult<string>> UploadImage(
             IFormFile file
         )
     {
@@ -44,7 +46,7 @@ public class FileController : ControllerBase
 
         //If file already exists, delete it
         if (System.IO.File.Exists(Path.Combine(env.WebRootPath, "Images", file.FileName)))
-            DeleteAvatar(file.FileName);
+            DeleteImage(file.FileName);
 
         using var inputStream = file.OpenReadStream();
             using var image = await Image.LoadAsync(inputStream);
@@ -75,7 +77,7 @@ public class FileController : ControllerBase
         }
 
     [HttpDelete]
-    public ActionResult DeleteAvatar(string fileName)
+    public ActionResult DeleteImage(string fileName)
     {
         var filePath = Path.Combine(env.WebRootPath, "Images", fileName);
         if (System.IO.File.Exists(filePath))
