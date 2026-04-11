@@ -44,8 +44,15 @@ public class FileController : ControllerBase
             return BadRequest();
         }
 
+        var webRoot = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var imagesFolder = Path.Combine(webRoot, "images");
+        if (!Directory.Exists(imagesFolder))
+        {
+            Directory.CreateDirectory(imagesFolder);
+        }
+
         //If file already exists, delete it
-        if (System.IO.File.Exists(Path.Combine(env.WebRootPath, "Images", file.FileName)))
+        if (!string.IsNullOrEmpty(file.FileName) && System.IO.File.Exists(Path.Combine(imagesFolder, file.FileName)))
             DeleteImage(file.FileName);
 
         using var inputStream = file.OpenReadStream();
@@ -63,7 +70,7 @@ public class FileController : ControllerBase
             outputStream.Seek(0, SeekOrigin.Begin);
 
             string fileName = Guid.NewGuid() + ".webp";// + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(env.WebRootPath, "Images", fileName); // wwwroot + images + filename ???
+            var filePath = Path.Combine(imagesFolder, fileName); // wwwroot + images + filename ???
 
             using (var stream = System.IO.File.Create(filePath))
             {
@@ -79,7 +86,9 @@ public class FileController : ControllerBase
     [HttpDelete]
     public ActionResult DeleteImage(string fileName)
     {
-        var filePath = Path.Combine(env.WebRootPath, "Images", fileName);
+        var webRoot = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var filePath = Path.Combine(webRoot, "images", fileName);
+
         if (System.IO.File.Exists(filePath))
         {
             System.IO.File.Delete(filePath);
