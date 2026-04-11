@@ -23,27 +23,6 @@ public partial class Program
         var app = builder.Build();
         ConfigureMiddlewarePipeline(app);
 
-        //// Only run migrations if not in testing environment
-        //if (!app.Environment.IsEnvironment("Testing"))
-        //{
-        //using (var scope = app.Services.CreateScope())
-        //{
-        //    var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-        //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>(); 
-
-        //    dataContext.Database.Migrate();
-        //    //dataContext.Database.EnsureCreated();
-
-        //    var user = new UserApp
-        //    {
-        //        Name = "Antoine Simper",
-        //        UserName = "antoine.simper@gmail.com",
-        //        Email = "antoine.simper@gmail.com"
-        //    };
-
-        //   var res =  await userManager.CreateAsync(user, "mahdiiii");
-        //}
-        //}
         // Apply database migrations
         using (var scope = app.Services.CreateScope())
         {
@@ -123,6 +102,8 @@ public partial class Program
                         "https://localhost:7168",
                         "http://associationadonf.fr",
                         "https://associationadonf.fr",
+                        "http://www.associationadonf.fr",
+                        "https://www.associationadonf.fr",
                         "http://api.associationadonf.fr",
                         "https://api.associationadonf.fr",
                         Env.API_BACK_URL,
