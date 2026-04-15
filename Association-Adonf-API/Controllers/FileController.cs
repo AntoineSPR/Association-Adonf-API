@@ -82,6 +82,47 @@ public class FileController : ControllerBase
 
             return Ok(url);
         }
+        
+    [HttpPost("document")]
+    public async Task<ActionResult<string>> UploadDocument(IFormFile file)
+    {
+        if (file == null)
+        {
+            return BadRequest("Aucun fichier téléversé");
+        }
+
+        var allowedMimeTypes = new[] { 
+            "application/pdf", 
+            "application/msword", 
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+        };
+        var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+
+        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedMimeTypes.Contains(file.ContentType) || !allowedExtensions.Contains(fileExtension))
+        {
+            return BadRequest("Format de fichier non autorisé (Seulement PDF ou Word)");
+        }
+
+        var webRoot = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var docsFolder = Path.Combine(webRoot, "documents");
+        if (!Directory.Exists(docsFolder))
+        {
+            Directory.CreateDirectory(docsFolder);
+        }
+
+        string fileName = Guid.NewGuid() + fileExtension;
+        var filePath = Path.Combine(docsFolder, fileName);
+
+        using (var stream = System.IO.File.Create(filePath))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        var url = $"/documents/{fileName}";
+
+        return Ok(url);
+    }
 
     [HttpDelete]
     public ActionResult DeleteImage(string fileName)
