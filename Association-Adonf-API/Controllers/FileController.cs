@@ -141,4 +141,20 @@ public class FileController : ControllerBase
         }
     }
 
+    [HttpDelete("document")]
+    public ActionResult DeleteDocument(string fileName)
+    {
+        var webRoot = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var filePath = Path.Combine(webRoot, "documents", fileName);
+
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+            return Ok();
+        }
+        else
+        {
+            return NotFound();
+        }
+    }
 }
