@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -138,6 +139,7 @@ namespace AssociationAdonfAPI.Services
                 return new LoginResponseDTO
                 {
                     Token = await GenerateAccessTokenAsync(user),
+                    RefreshToken = await GenerateRefreshTokenAsync(user),
                     User = user.ToUserResponseDTO(userRoles.ToList()),
                 };
             }
@@ -145,6 +147,76 @@ namespace AssociationAdonfAPI.Services
             {
                 throw;
             }
+        }
+
+        public async Task<LoginResponseDTO> RefreshAsync(string rawRefreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(rawRefreshToken))
+            {
+                throw new UnauthorizedAccessException("Session expirée, veuillez vous reconnecter");
+            }
+
+            var tokenHash = HashToken(rawRefreshToken);
+            var existingToken = await context.RefreshTokens
+                .Include(rt => rt.User)
+                .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash);
+
+            if (existingToken == null || !existingToken.IsActive)
+            {
+                throw new UnauthorizedAccessException("Session expirée, veuillez vous reconnecter");
+            }
+
+            // Rotation : on révoque le jeton utilisé et on en émet un nouveau couple.
+            existingToken.RevokedAt = DateTime.UtcNow;
+
+            var user = existingToken.User;
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            return new LoginResponseDTO
+            {
+                Token = await GenerateAccessTokenAsync(user),
+                RefreshToken = await GenerateRefreshTokenAsync(user),
+                User = user.ToUserResponseDTO(userRoles.ToList()),
+            };
+        }
+
+        public async Task RevokeRefreshTokenAsync(string rawRefreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(rawRefreshToken))
+            {
+                return;
+            }
+
+            var tokenHash = HashToken(rawRefreshToken);
+            var existingToken = await context.RefreshTokens
+                .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash);
+
+            if (existingToken != null && existingToken.RevokedAt == null)
+            {
+                existingToken.RevokedAt = DateTime.UtcNow;
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<string> GenerateRefreshTokenAsync(UserApp user)
+        {
+            var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+            context.RefreshTokens.Add(new RefreshToken
+            {
+                TokenHash = HashToken(rawToken),
+                UserId = user.Id,
+                ExpiresAt = DateTime.UtcNow.AddDays(Env.REFRESH_TOKEN_VALIDITY_DAYS),
+            });
+
+            await context.SaveChangesAsync();
+
+            return rawToken;
+        }
+
+        private static string HashToken(string token)
+        {
+            return Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
         }
 
         public async Task<string> GenerateAccessTokenAsync(UserApp user)
@@ -176,7 +248,7 @@ namespace AssociationAdonfAPI.Services
                     issuer: Env.API_BACK_URL,
                     audience: Env.API_BACK_URL,
                     claims: authClaims,
-                    expires: DateTime.Now.AddDays(Env.TOKEN_VALIDITY_DAYS),
+                    expires: DateTime.UtcNow.AddMinutes(Env.ACCESS_TOKEN_VALIDITY_MINUTES),
                     signingCredentials: credentials
                 );
 

@@ -25,15 +25,26 @@ namespace AssociationAdonfAPI.Utilities
         public static string API_BACK_URL => GetEnv(nameof(API_BACK_URL), "https://localhost:7168");
         public static string API_FRONT_URL => GetEnv(nameof(API_FRONT_URL), "http://localhost:4200");
         public static string JWT_KEY => GetEnv(nameof(JWT_KEY), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV31");
-        public static int TOKEN_VALIDITY_DAYS
+        public static int ACCESS_TOKEN_VALIDITY_MINUTES
         {
             get
             {
-                if (int.TryParse(GetEnv(nameof(TOKEN_VALIDITY_DAYS)), out var days))
+                if (int.TryParse(GetEnv(nameof(ACCESS_TOKEN_VALIDITY_MINUTES)), out var minutes))
+                {
+                    return minutes;
+                }
+                return 60;
+            }
+        }
+        public static int REFRESH_TOKEN_VALIDITY_DAYS
+        {
+            get
+            {
+                if (int.TryParse(GetEnv(nameof(REFRESH_TOKEN_VALIDITY_DAYS)), out var days))
                 {
                     return days;
                 }
-                return 7;
+                return 30;
             }
         }
     }

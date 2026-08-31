@@ -49,16 +49,26 @@ namespace AssociationAdonfAPI.Context
             builder.Entity<PageContent>()
                 .Property(p => p.Content)
                 .HasColumnType("jsonb");
-            
+
+            builder.Entity<RefreshToken>()
+                .HasIndex(rt => rt.TokenHash)
+                .IsUnique();
+
+            builder.Entity<RefreshToken>()
+                .HasOne(rt => rt.User)
+                .WithMany()
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         // Accès aux tables :
         public DbSet<UserApp> Users { get; set; }
 
         public DbSet<Role> Roles { get; set; }
-        
+
         public DbSet<PageContent> PageContents { get; set; }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     }
 }

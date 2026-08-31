@@ -119,6 +119,37 @@ namespace AssociationAdonfAPI.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [EnableCors]
+        [Route("refresh")]
+        [HttpPost]
+        public async Task<ActionResult<LoginResponseDTO>> Refresh([FromBody] RefreshRequestDTO model)
+        {
+            try
+            {
+                var result = await authService.RefreshAsync(model.RefreshToken);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Unauthorized(new { message = e.Message });
+            }
+            catch
+            {
+                return Unauthorized(new { message = "Session expirée, veuillez vous reconnecter" });
+            }
+        }
+
+        [AllowAnonymous]
+        [EnableCors]
+        [Route("logout")]
+        [HttpPost]
+        public async Task<IActionResult> Logout([FromBody] RefreshRequestDTO model)
+        {
+            await authService.RevokeRefreshTokenAsync(model.RefreshToken);
+            return Ok();
+        }
+
         [Route("email/{email}")]
         [HttpGet]
         public async Task<ActionResult<UserResponseDTO?>> GetUserByEmail([FromRoute] string email)
