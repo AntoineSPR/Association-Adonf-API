@@ -15,16 +15,19 @@ namespace AssociationAdonfAPI.Controllers
         private readonly AuthService authService;
         private readonly UserService userService;
         private readonly SendMailService mailService;
+        private readonly ILogger<UserController> logger;
 
         public UserController(
             AuthService authService,
             UserService userService,
-            SendMailService mailService
+            SendMailService mailService,
+            ILogger<UserController> logger
         )
         {
             this.authService = authService;
             this.userService = userService;
             this.mailService = mailService;
+            this.logger = logger;
         }
 
         [Authorize(Roles = "Admin")]
@@ -37,7 +40,7 @@ namespace AssociationAdonfAPI.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    throw new Exception("Validation issue");
+                    throw new Exception("Données de validation invalides");
                 }
 
                 var result = await authService.Register(model);
@@ -46,7 +49,7 @@ namespace AssociationAdonfAPI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new { message = e.Message });
             }
         }
 
@@ -103,19 +106,24 @@ namespace AssociationAdonfAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] UserLoginDTO model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "Veuillez renseigner un email valide et un mot de passe." });
+            }
+
             try
             {
-                if (!ModelState.IsValid) { throw new Exception("Login failed"); }
-                ;
-
                 var result = await authService.Login(model);
 
                 return Ok(result);
-
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Unauthorized(new { message = e.Message });
             }
             catch
             {
-                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Une erreur est survenue. Veuillez réessayer." });
             }
         }
 
@@ -178,7 +186,8 @@ namespace AssociationAdonfAPI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(new { message = e.Message });
+                logger.LogError(e, "Échec de l'envoi de l'email de réinitialisation de mot de passe pour {Email}", email);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Une erreur est survenue lors de l'envoi de l'email. Veuillez réessayer plus tard." });
             }
         }
 

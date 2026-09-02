@@ -76,7 +76,7 @@ namespace AssociationAdonfAPI.Services
                 var user = UserService.GetUserFromClaim(UserPrincipal, context);
                 if (user is null)
                 {
-                    throw new Exception("Account not found");
+                    throw new Exception("Compte introuvable");
                 }
 
                 user = model.ToSimpleUser(user);
@@ -123,15 +123,11 @@ namespace AssociationAdonfAPI.Services
             {
                 var user = await userManager.FindByEmailAsync(model.Email);
 
-                if (user == null)
+                // Message identique que l'email soit inconnu ou le mot de passe erroné,
+                // pour ne pas révéler si un compte existe (et rester cohérent côté UI).
+                if (user == null || !await userManager.CheckPasswordAsync(user, model.Password))
                 {
-                    throw new Exception("User not found");
-                }
-
-                var result = await userManager.CheckPasswordAsync(user: user, password: model.Password);
-                if (!result)
-                {
-                    throw new Exception("Login failed");
+                    throw new UnauthorizedAccessException("Email ou mot de passe incorrect.");
                 }
 
                 var userRoles = await userManager.GetRolesAsync(user);

@@ -48,23 +48,23 @@ namespace AssociationAdonfAPI.Services
 
                 var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var encodedToken = Uri.EscapeDataString(resetToken);
-                var resetLink = $"{Env.API_FRONT_URL}/reset-password?token={encodedToken}&email={Uri.EscapeDataString(emailAddress)}";
+                var resetLink = $"{Env.API_FRONT_URL}/admin/reset-password?token={encodedToken}&email={Uri.EscapeDataString(emailAddress)}";
                 var name = user.Name;
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress("ne-pas-repondre@hexaplanning.fr"),
-                    Subject = "Hexaplanning : Réinitialisez votre mot de passe",
+                    From = new MailAddress(Env.SMTP_SENDER_ADDRESS, "Association Adonf"),
+                    Subject = "Association Adonf : Réinitialisez votre mot de passe",
                     Body = $"""
                     Bonjour {name},
 
-                    Vous avez demandé un lien pour réinitialiser votre mot de passe Hexaplanning. Si la demande ne venait pas de vous, veuillez ignorer ce message.
-                    
-                    Ce lien est valable 24 heures : 
-                    
+                    Vous avez demandé un lien pour réinitialiser votre mot de passe du back-office de l'Association Adonf. Si la demande ne venait pas de vous, veuillez ignorer ce message.
+
+                    Ce lien est valable 24 heures :
+
                     {resetLink}
 
-                    Au plaisir de vous revoir sur Hexaplanning !
+                    À bientôt sur l'espace d'administration de l'Association Adonf !
                     """,
                     IsBodyHtml = false,
                 };

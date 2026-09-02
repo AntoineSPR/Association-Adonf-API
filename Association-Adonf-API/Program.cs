@@ -129,7 +129,8 @@ public partial class Program
             .AddRoleManager<RoleManager<Role>>()
             .AddUserManager<UserManager<UserApp>>()
             .AddSignInManager<SignInManager<UserApp>>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddErrorDescriber<FrenchIdentityErrorDescriber>();
 
         services.Configure<IdentityOptions>(options =>
         {
